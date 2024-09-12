@@ -1,11 +1,25 @@
 import './assets/main.css'
 
-import { createApp } from 'vue'
+import { ViteSSG } from 'vite-ssg'
 import App from './App.vue'
-import router from './router'
 
-const app = createApp(App)
+import { setupLayouts } from 'virtual:generated-layouts'
+import { routes } from 'vue-router/auto-routes'
+import VueGtag from 'vue-gtag'
+import { createHead } from '@unhead/vue'
+import VueCookieAcceptDecline from 'vue-cookie-accept-decline'
 
-app.use(router)
+const ga = 'G-XXXXXXXXXXXXXXX'
 
-app.mount('#app')
+export const createApp = ViteSSG(
+  App,
+  { routes: setupLayouts(routes) },
+  ({ app, router, routes, isClient, initialState }) => {
+    app.use(VueGtag, {
+      config: { id: ga, },
+    }, router),
+    createHead(),
+    app.component('vue-cookie-accept-decline',
+      VueCookieAcceptDecline)
+  },
+)
